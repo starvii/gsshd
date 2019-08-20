@@ -1,28 +1,6 @@
 // refer to https://github.com/jpillora/sshd-lite/blob/master/main.go
 package main
 
-///*
-//#include<stdio.h>
-//#include<stdlib.h>
-//#include<unistd.h>
-//#include<sys/types.h>
-//
-//void to_background() {
-//	__pid_t pid = fork();
-//	if (pid < 0) {
-//		puts("ERROR: cannot fork!");
-//		exit(pid);
-//	}
-//	if (pid > 0) {
-//		//puts("INFO: this is a parent process and it is going to exit.");
-//		exit(0);
-//	} else {
-//		//puts("INFO: this is a child prcess and it's parent pid should be 1.");
-//	}
-//}
-//
-//*/
-//import "C"
 import (
 	"flag"
 	"fmt"
@@ -98,9 +76,7 @@ func parse_parameters() sshd.Config {
 	return *c
 }
 
-func main() {
-	//C.to_background()
-
+func run_in_background() {
 	if os.Getppid() != 1 {
 		exe, _ := filepath.Abs(os.Args[0])
 		cmd := exec.Command(exe, os.Args[1:]...)
@@ -111,8 +87,12 @@ func main() {
 		log.Printf("Start background process: %v\n", cmd.Process.Pid)
 		os.Exit(cmd.Process.Pid)
 	}
+}
 
+func main() {
 	c := parse_parameters()
+
+	run_in_background()
 	s, err := sshd.NewServer(&c)
 	if err != nil {
 		log.Fatal(err)
@@ -121,6 +101,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
- 	//fmt.Printf("pid = %v, ppid = %v\n", os.Getpid(), os.Getppid())
 }
 
